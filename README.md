@@ -51,4 +51,5 @@ php artisan mysql:binlog [start|stop|restart|infos]
 # 鸣谢
 
 [php-mysql-replication](https://github.com/krowinski/php-mysql-replication)
+
 [laravel-swoole](https://github.com/swooletw/laravel-swoole)
