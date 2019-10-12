@@ -126,15 +126,6 @@ class Manager
             case EventTypeConst::HEARTBEAT_LOG_EVENT:
                 $event = $eventBuilder->makeHeartbeat();
                 break;
-        }
-
-        // check for ignore and permitted events
-        if (!Configure::checkEvent($event)) {
-            return;
-        }
-
-        switch($eventInfo->getType())
-        {
             case EventTypeConst::UPDATE_ROWS_EVENT_V1:
             case EventTypeConst::UPDATE_ROWS_EVENT_V2:
                 $event = $eventBuilder->makeUpdateRecord();
@@ -158,8 +149,14 @@ class Manager
                 break;
         }
 
-        // event dispatch
-        if (isset($event)) {
+        if (isset($event))
+        {
+            // check for ignore and permitted events
+            if (!Configure::checkEvent($event)) {
+                return;
+            }
+
+            // event dispatch
             Event::dispatch($event);
         }
     }
