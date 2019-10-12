@@ -55,4 +55,4 @@ php artisan mysql:binlog [start|stop|restart|infos]
 [laravel-swoole](https://github.com/swooletw/laravel-swoole)
 
 # License
-The Laravel-Swoole package is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+The Laravel-Binlog package is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
