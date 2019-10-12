@@ -39,6 +39,9 @@ max_binlog_size  = 100M
 binlog-format    = row #Very important if you want to receive write, update and delete row events
 ```
 
+# 文档 （Documentation)
+Please see [Wiki](https://github.com/telanflow/laravel-binlog/wiki)
+
 # Usage
 
 ```
@@ -48,3 +51,4 @@ php artisan mysql:binlog [start|stop|restart|infos]
 # 鸣谢
 
 [php-mysql-replication](https://github.com/krowinski/php-mysql-replication)
+[laravel-swoole](https://github.com/swooletw/laravel-swoole)
