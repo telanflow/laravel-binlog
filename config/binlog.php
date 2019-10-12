@@ -78,11 +78,11 @@ return [
         RecordTypeConst::DELETE,
         RecordTypeConst::BEGIN,
         RecordTypeConst::ROLLBACK,
-        RecordTypeConst::TABLE_MAP,
-        RecordTypeConst::HEARTBEAT,
-        RecordTypeConst::GTID,
-        RecordTypeConst::FORMAT_DESCRIPTION,
-        RecordTypeConst::QUERY,
+        // RecordTypeConst::FORMAT_DESCRIPTION,
+        // RecordTypeConst::TABLE_MAP,
+        // RecordTypeConst::HEARTBEAT,
+        // RecordTypeConst::GTID,
+        // RecordTypeConst::QUERY,
     ],
 
 ];
