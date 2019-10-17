@@ -12,13 +12,13 @@
 |:-------:|:-------:|:-----:|:-------:|
 | >= 7.2   | >=5.5   | 5.5/5.6/5.7  | >=4.2 |
 
-# 安装
+# Install
 
 ```
 composer require telanflow/laravel-binlog
 ```
 
-# 配置
+# Publish Config
 
 默认设置在 config/binlog.php 中。将此文件复制到您自己的配置目录以修改值。
 
@@ -27,19 +27,7 @@ composer require telanflow/laravel-binlog
 php artisan vendor:publish --provider="Telanflow\Binlog\LaravelServiceProvider"
 ```
 
-# Mysql配置
-
-开启mysql binlog支持，并且指定格式为row，如下配置
-```
-[mysqld]
-server-id        = 1
-log_bin          = /var/log/mysql/mysql-bin.log
-expire_logs_days = 10
-max_binlog_size  = 100M
-binlog-format    = row #Very important if you want to receive write, update and delete row events
-```
-
-# 文档 （Documentation)
+# Documentation
 Please see [Wiki](https://github.com/telanflow/laravel-binlog/wiki)
 
 # Usage
