@@ -25,23 +25,14 @@ class TestCase extends BaseTestCase
     {
         $app['config']->set('binlog', include('config/binlog.php'));
         $app['config']->set('binlog.connection', [
-            // 'host' => '127.0.0.1',
-            // 'port' => '3306',
-            // 'username' => 'forge',
-            // 'password' => '',
-            //
-            // // Binlog slave_id
-            // 'slave_id' => '1',
-            // // Binlog heartbeat
-            // 'heartbeat' => 5,
-
-            'host' => '120.55.181.95',
+            'host' => '127.0.0.1',
             'port' => '3306',
-            'username' => 'develop',
-            'password' => '2017LGJ$#@',
+            'username' => 'forge',
+            'password' => '',
             'charset' => 'utf8',
+
             // Binlog slave_id
-            'slave_id' => '110011',
+            'slave_id' => '1',
             // Binlog heartbeat
             'heartbeat' => 5,
         ]);
