@@ -82,7 +82,7 @@ class LaravelServiceProvider extends ServiceProvider
     protected function registerManager()
     {
         $this->app->singleton(Manager::class, function ($app) {
-            return new Manager($app, 'laravel');
+            return new Manager($app, $app->make(Client::class));
         });
 
         $this->app->alias(Manager::class, 'binlog.manager');

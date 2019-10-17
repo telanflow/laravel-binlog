@@ -2,7 +2,8 @@
 
 namespace Telanflow\Binlog\Server;
 
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Collection;
+use Telanflow\Binlog\Configure\Configure;
 use Telanflow\Binlog\DTO\FieldDTOCollection;
 
 class Database
@@ -12,10 +13,13 @@ class Database
      * Check binlog opened
      *
      * @return bool
+     * @throws \Doctrine\DBAL\DBALException
      */
     public static function isOpenBinlog()
     {
-        return DB::selectOne('select @@sql_log_bin')->{'@@sql_log_bin'} == 1;
+        $row = Configure::getDbConnection()->fetchAssoc('select @@sql_log_bin');
+
+        return isset($row['@@sql_log_bin']) && $row['@@sql_log_bin'] == 1;
     }
 
     /**
@@ -25,8 +29,9 @@ class Database
      */
     public static function getBinlogFormat()
     {
-        $format = DB::selectOne('select @@binlog_format')->{'@@binlog_format'};
-        return strtolower($format);
+        $row = Configure::getDbConnection()->fetchAssoc('select @@binlog_format');
+
+        return strtolower($row['@@binlog_format']);
     }
 
     /**
@@ -36,7 +41,9 @@ class Database
      */
     public static function getGlobalCheckSum()
     {
-        return DB::selectOne("SHOW GLOBAL VARIABLES LIKE 'BINLOG_CHECKSUM'")->Value;
+        $row = Configure::getDbConnection()->fetchAssoc("SHOW GLOBAL VARIABLES LIKE 'BINLOG_CHECKSUM'");
+
+        return $row['Value'];
     }
 
     /**
@@ -46,10 +53,10 @@ class Database
      */
     public static function getBinlogInfo()
     {
-        $row = DB::selectOne('show master status');
+        $row = Configure::getDbConnection()->fetchAssoc('show master status');
         return [
-            'File' => $row->File,
-            'Position' => $row->Position,
+            'File' => $row['File'],
+            'Position' => $row['Position'],
         ];
     }
 
@@ -58,25 +65,24 @@ class Database
      *
      * @param string $schema
      * @param string $table
-     * @return \Illuminate\Support\Collection
+     * @return Collection
      */
     public static function getTableFields($schema, $table)
     {
-        $fields = [
-            'COLUMN_NAME',
-            'COLLATION_NAME',
-            'CHARACTER_SET_NAME',
-            'COLUMN_COMMENT',
-            'COLUMN_TYPE',
-            'COLUMN_KEY',
-        ];
-        $where = [
-            'table_schema' => $schema,
-            'table_name' => $table,
-        ];
+        $sql = '
+             SELECT
+                `COLUMN_NAME`,
+                `COLLATION_NAME`,
+                `CHARACTER_SET_NAME`,
+                `COLUMN_COMMENT`,
+                `COLUMN_TYPE`,
+                `COLUMN_KEY`
+            FROM
+                `information_schema`.`COLUMNS`
+            WHERE `TABLE_SCHEMA` = ? AND `TABLE_NAME` = ?
+            ORDER BY ORDINAL_POSITION';
 
-        $list = DB::table('information_schema.columns')->select($fields)->where($where)->get()->toArray();
-        return FieldDTOCollection::makeFromArray($list);
+        return FieldDTOCollection::makeFromArray(Configure::getDbConnection()->fetchAll($sql, [$schema, $table]));
     }
 
 }

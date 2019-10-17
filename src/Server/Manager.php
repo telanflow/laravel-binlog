@@ -13,7 +13,6 @@ use Telanflow\Binlog\Event\EventBuilder;
 use Telanflow\Binlog\Event\EventInfo;
 use Telanflow\Binlog\Exceptions\ConnectionException;
 use Telanflow\Binlog\Helpers\OS;
-use Telanflow\Binlog\Server\Facades\Client;
 
 class Manager
 {
@@ -27,20 +26,19 @@ class Manager
     protected $container;
 
     /**
-     * @var string
-     */
-    protected $framework;
-
-    /**
      * @var Client
      */
     protected $client;
 
-    public function __construct(Container $container, $framework)
+    /**
+     * @var bool
+     */
+    protected $exit = false;
+
+    public function __construct(Container $container, Client $client)
     {
         $this->container = $container;
-        $this->framework = $framework;
-        $this->client = $this->container->make(Client::class);
+        $this->client = $client;
     }
 
     public function run()
@@ -55,22 +53,16 @@ class Manager
         pcntl_signal(SIGTERM, [$this, 'signalHandler'], false);
         pcntl_signal(SIGPIPE, SIG_IGN, false);
 
-        // Conn
+        // conn
         if(!$this->client->connect(Configure::getHost(), Configure::getPort(), 10)) {
             throw new ConnectionException($this->client->reuse, $this->client->errCode);
         }
-        // Auth
+        // auth
         $this->client->authenticate();
-        // RegisterSlave
+        // registerSlave
         $this->client->getBinlogStream();
 
-        while (1)
-        {
-            pcntl_signal_dispatch();
-
-            $status = 0;
-            $pid = pcntl_wait($status, WNOHANG);
-
+        while (!$this->exit) {
             $this->consume();
         }
     }
@@ -95,7 +87,7 @@ class Manager
             case SIGTERM:
                 $this->client->close();
                 file_put_contents(Configure::getPosFile(), $pidFileContent);
-                exit(0);
+                $this->exit = true;
         }
     }
 

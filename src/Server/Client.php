@@ -16,6 +16,10 @@ class Client extends BaseClient
      * http://dev.mysql.com/doc/internals/en/auth-phase-fast-path.html 00 FE
      */
     const DATA_MAX_LENGTH = 16777215;
+
+    /**
+     * @var array
+     */
     public static $packageOkHeader = [0, 254];
 
     /**
@@ -119,7 +123,7 @@ class Client extends BaseClient
         $data .= Configure::getUsername() . chr(0);     // 用户名 0x00 以NULL结束
         $pwd = sha1(Configure::getPassword(), true) ^ sha1($salt . sha1(sha1(Configure::getPassword(), true), true), true); // 加密
         $data .= chr(strlen($pwd)) . $pwd;              // 密码信息 Length Coded Binary
-//        Configure::getDatabase() && ($data .= Configure::getDatabase().chr(0));// 数据库名称 0x00 以NULL结束
+        // Configure::getDatabase() && ($data .= Configure::getDatabase().chr(0));// 数据库名称 0x00 以NULL结束
 
         $str  = pack('L', strlen($data));
         $data = $str[0].$str[1].$str[2] . chr(1) . $data;
@@ -224,9 +228,9 @@ class Client extends BaseClient
             CapabilityFlagConst::CLIENT_PROTOCOL_41
         );
 
-//        if (Configure::getDatabase()) {
-//            $flags |= CapabilityFlag::CLIENT_CONNECT_WITH_DB;
-//        }
+        // if (Configure::getDatabase()) {
+        //     $flags |= CapabilityFlag::CLIENT_CONNECT_WITH_DB;
+        // }
 
         return $flags;
     }
@@ -257,11 +261,11 @@ class Client extends BaseClient
     /**
      * COM_QUERY封包，此命令最常用，常用于增删改查
      */
-    public function execute(string $sql): void
+    public function execute(string $sql): string
     {
         $pack = pack('LC', strlen($sql) + 1, 3) . $sql;
         $this->write($pack);
-        $this->read();
+        return $this->read();
     }
 
 }

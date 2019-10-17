@@ -2,6 +2,9 @@
 
 namespace Telanflow\Binlog\Configure;
 
+use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\DriverManager;
 use Telanflow\Binlog\Contracts\EventInterface;
 
 class Configure
@@ -10,7 +13,8 @@ class Configure
     protected static $port = '';
     protected static $username = '';
     protected static $password = '';
-    protected static $slaveId = '';
+    protected static $charset = 'utf8';
+    protected static $slaveId = '1';
     protected static $heartbeat = 5;
     protected static $daemon = false;
     protected static $processName = 'binlog';
@@ -21,6 +25,7 @@ class Configure
     protected static $binlogFileName = '';
     protected static $listen;
     protected static $listenEvent;
+    protected static $dbConn;
 
     /**
      * @param array $config
@@ -32,6 +37,7 @@ class Configure
         self::$port = trim($config['connection']['port']);
         self::$username = strval($config['connection']['username']);
         self::$password = strval($config['connection']['password']);
+        self::$charset = strval($config['connection']['charset']);
         self::$slaveId = trim($config['connection']['slave_id']);
         self::$heartbeat = intval($config['connection']['heartbeat']);
 
@@ -118,6 +124,22 @@ class Configure
     public static function setPassword(string $password): void
     {
         self::$password = $password;
+    }
+
+    /**
+     * @return string
+     */
+    public static function getCharset(): string
+    {
+        return self::$charset;
+    }
+
+    /**
+     * @param string $charset
+     */
+    public static function setCharset(string $charset): void
+    {
+        self::$charset = $charset;
     }
 
     /**
@@ -262,6 +284,30 @@ class Configure
     public static function setLogFile(string $logFile): void
     {
         self::$logFile = $logFile;
+    }
+
+    public static function getDbConnection(): Connection
+    {
+        if (! self::$dbConn instanceof Connection)
+        {
+            self::$dbConn = DriverManager::getConnection(
+                [
+                    'user' => self::getUsername(),
+                    'password' => self::getPassword(),
+                    'host' => self::getHost(),
+                    'port' => self::getPort(),
+                    'driver' => 'pdo_mysql',
+                    'charset' => self::getCharset(),
+                ]
+            );
+        }
+
+        if (false === self::$dbConn->ping()) {
+            self::$dbConn->close();
+            self::$dbConn->connect();
+        }
+
+        return self::$dbConn;
     }
 
     /**

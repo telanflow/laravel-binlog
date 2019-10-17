@@ -10,6 +10,7 @@
  */
 
 use Telanflow\Binlog\Constants\RecordTypeConst;
+use Telanflow\Binlog\Constants\CharsetConst;
 
 return [
 
@@ -23,6 +24,7 @@ return [
         'port' => env('BINLOG_PORT', '3306'),
         'username' => env('BINLOG_USERNAME', 'forge'),
         'password' => env('BINLOG_PASSWORD', ''),
+        'charset'  => env('BINLOG_CHARSET', 'utf8'),
 
         // Binlog slave_id
         'slave_id' => env('BINLOG_SLAVE_ID', '1'),
