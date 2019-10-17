@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <phpunit backupGlobals="false"
          backupStaticAttributes="false"
-         bootstrap="tests/bootstrap.php"
+         bootstrap="tests/TestCase.php"
          colors="true"
          convertErrorsToExceptions="true"
          convertNoticesToExceptions="true"
@@ -11,11 +11,8 @@
          syntaxCheck="false"
 >
     <testsuites>
-        <testsuite name="Integration Suite">
-            <directory>./tests/Integration</directory>
-        </testsuite>
-        <testsuite name="Unit Suite">
-            <directory>./tests/Unit</directory>
+        <testsuite name="Laravel-Binlog">
+            <directory>./tests</directory>
         </testsuite>
     </testsuites>
 </phpunit>
