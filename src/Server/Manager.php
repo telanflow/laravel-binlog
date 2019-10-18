@@ -2,6 +2,7 @@
 
 namespace Telanflow\Binlog\Server;
 
+use Illuminate\Contracts\Cache\Repository;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Config;
@@ -31,6 +32,11 @@ class Manager
     protected $client;
 
     /**
+     * @var Repository
+     */
+    protected $cache;
+
+    /**
      * @var bool
      */
     protected $exit = false;
@@ -39,6 +45,7 @@ class Manager
     {
         $this->container = $container;
         $this->client = $client;
+        $this->cache = Cache::store('array');
     }
 
     public function run()
@@ -63,8 +70,11 @@ class Manager
         $this->client->getBinlogStream();
 
         while (!$this->exit) {
+            pcntl_signal_dispatch();
             $this->consume();
         }
+
+        $this->client->close();
     }
 
     /**
@@ -85,7 +95,6 @@ class Manager
             case SIGUSR1:
             case SIGUSR2:
             case SIGTERM:
-                $this->client->close();
                 file_put_contents(Configure::getPosFile(), $pidFileContent);
                 $this->exit = true;
         }
@@ -102,7 +111,7 @@ class Manager
 
         // decode all events data
         $eventInfo = $this->getEventInfo($binaryDataReader);
-        $eventBuilder = new EventBuilder($binaryDataReader, $eventInfo, Cache::store('array'));
+        $eventBuilder = new EventBuilder($binaryDataReader, $eventInfo, $this->cache);
 
         switch($eventInfo->getType())
         {

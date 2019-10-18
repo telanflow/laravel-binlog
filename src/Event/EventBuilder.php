@@ -3,7 +3,7 @@
 namespace Telanflow\Binlog\Event;
 
 use Exception;
-use Illuminate\Cache\Repository;
+use Illuminate\Contracts\Cache\Repository;
 use Telanflow\Binlog\Constants\EventTypeConst;
 use Telanflow\Binlog\Contracts\EventInterface;
 use Telanflow\Binlog\DTO\ColumnDTOCollection;
@@ -163,7 +163,7 @@ class EventBuilder
         return new GTID($this->eventInfo, $commitFlag);
     }
 
-    public function makeUpdateRecord(): EventInterface
+    public function makeUpdateRecord(): ?EventInterface
     {
         if (!$this->recordInit()) {
             return null;
@@ -189,7 +189,7 @@ class EventBuilder
         );
     }
 
-    public function makeInsertRecord(): EventInterface
+    public function makeInsertRecord(): ?EventInterface
     {
         if (!$this->recordInit()) {
             return null;
@@ -204,7 +204,7 @@ class EventBuilder
         );
     }
 
-    public function makeDeleteRecord(): EventInterface
+    public function makeDeleteRecord(): ?EventInterface
     {
         if (!$this->recordInit()) {
             return null;
@@ -283,7 +283,7 @@ class EventBuilder
         $this->eventBinaryData->readCodedBinary();
 
         if ($this->cache->has($tableId)) {
-            /** @var TableMapDTO $tableMap */
+            /** @var TableMapDTO currentTableMapDTO */
             $this->currentTableMapDTO = $this->cache->get($tableId);
 
             return true;
