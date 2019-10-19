@@ -37,6 +37,14 @@ class EventBinaryData
         $this->data = $data;
     }
 
+    public static function pack64bit(int $value): string
+    {
+        return pack(
+            'C8', ($value >> 0) & 0xFF, ($value >> 8) & 0xFF, ($value >> 16) & 0xFF, ($value >> 24) & 0xFF,
+            ($value >> 32) & 0xFF, ($value >> 40) & 0xFF, ($value >> 48) & 0xFF, ($value >> 56) & 0xFF
+        );
+    }
+
     public function read(int $len): string
     {
         $data = substr($this->data, 0, $len);
@@ -80,20 +88,23 @@ class EventBinaryData
 
     public function readUInt40(): int
     {
-        $data = unpack('CI', $this->read(self::UNSIGNED_INT40_LENGTH));
-        return $data[1] + ($data[2] << 8);
+        $data1 = unpack('C', $this->read(self::UNSIGNED_CHAR_LENGTH))[1];
+        $data2 = unpack('I', $this->read(self::UNSIGNED_INT32_LENGTH))[1];
+        return $data1 + ($data2 << 8);
     }
 
     public function readUInt48(): int
     {
-        $data = unpack('vvv', $this->read(self::UNSIGNED_INT48_LENGTH));
+        $data = unpack('v3', $this->read(self::UNSIGNED_INT48_LENGTH));
         return $data[1] + ($data[2] << 16) + ($data[3] << 32);
     }
 
     public function readUInt56(): int
     {
-        $data = unpack('CSI', $this->read(self::UNSIGNED_INT56_LENGTH));
-        return $data[1] + ($data[2] << 8) + ($data[3] << 24);
+        $data1 = unpack('C', $this->read(self::UNSIGNED_CHAR_LENGTH))[1];
+        $data2 = unpack('S', $this->read(self::UNSIGNED_SHORT_LENGTH))[1];
+        $data3 = unpack('I', $this->read(self::UNSIGNED_INT32_LENGTH))[1];
+        return $data1 + ($data2 << 8) + ($data3 << 24);
     }
 
     public function readUInt64(): string
@@ -104,7 +115,7 @@ class EventBinaryData
     public function unpackUInt64(string $binary): string
     {
         $data = unpack('V*', $binary);
-        return bcadd($data[1], bcmul($data[2], bcpow(2, 32)));
+        return bcadd((string)$data[1], bcmul((string)$data[2], bcpow('2', '32')));
     }
 
     public function readInt8(): int
