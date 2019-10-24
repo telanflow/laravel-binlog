@@ -32,9 +32,15 @@ class EventBinaryData
      */
     private $offset = 0;
 
+    /**
+     * @var int
+     */
+    private $dataTotal = 0;
+
     public function __construct(string $data)
     {
         $this->data = $data;
+        $this->dataTotal = strlen($data);
     }
 
     public static function pack64bit(int $value): string
@@ -47,6 +53,10 @@ class EventBinaryData
 
     public function read(int $len): string
     {
+        if ($len + $this->offset > $this->dataTotal) {
+            throw new EventBinaryDataException('Read binary data length > total');
+        }
+
         $data = substr($this->data, 0, $len);
         $this->offset += $len;
         $this->data = substr($this->data, $len);

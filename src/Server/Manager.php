@@ -13,6 +13,7 @@ use Telanflow\Binlog\Event\EventBinaryData;
 use Telanflow\Binlog\Event\EventBuilder;
 use Telanflow\Binlog\Event\EventInfo;
 use Telanflow\Binlog\Exceptions\ConnectionException;
+use Telanflow\Binlog\Exceptions\EventBinaryDataException;
 use Telanflow\Binlog\Helpers\OS;
 
 class Manager
@@ -69,9 +70,13 @@ class Manager
         // registerSlave
         $this->client->getBinlogStream();
 
-        while (!$this->exit) {
+        while (!$this->exit)
+        {
             pcntl_signal_dispatch();
-            $this->consume();
+
+            try {
+                $this->consume();
+            } catch (EventBinaryDataException $e) {}
         }
 
         $this->client->close();
