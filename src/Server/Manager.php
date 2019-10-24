@@ -78,8 +78,6 @@ class Manager
                 $this->consume();
             } catch (EventBinaryDataException $e) {}
         }
-
-        $this->client->close();
     }
 
     /**
@@ -100,8 +98,10 @@ class Manager
             case SIGUSR1:
             case SIGUSR2:
             case SIGTERM:
-                file_put_contents(Configure::getPosFile(), $pidFileContent);
                 $this->exit = true;
+                $this->client->close();
+                file_put_contents(Configure::getPosFile(), $pidFileContent);
+                exit(0);
         }
     }
 
