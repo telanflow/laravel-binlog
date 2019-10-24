@@ -99,15 +99,19 @@ class Manager
             case SIGUSR2:
             case SIGTERM:
                 $this->exit = true;
-                $this->client->close();
+                $this->client->close(true);
                 file_put_contents(Configure::getPosFile(), $pidFileContent);
-                exit(0);
         }
     }
 
     protected function consume(): void
     {
-        $binaryDataReader = new EventBinaryData($this->client->read());
+        $recvData = $this->client->read();
+        if (empty($recvData)) {
+            return;
+        }
+
+        $binaryDataReader = new EventBinaryData($recvData);
 
         // check EOF_Packet -> https://dev.mysql.com/doc/internals/en/packet-EOF_Packet.html
         if (self::EOF_HEADER_VALUE === $binaryDataReader->readUInt8()) {
@@ -118,7 +122,7 @@ class Manager
         $eventInfo = $this->getEventInfo($binaryDataReader);
         $eventBuilder = new EventBuilder($binaryDataReader, $eventInfo, $this->cache);
 
-        switch($eventInfo->getType())
+        switch ($eventInfo->getType())
         {
             case EventTypeConst::TABLE_MAP_EVENT:
                 $event = $eventBuilder->makeTableMap();
