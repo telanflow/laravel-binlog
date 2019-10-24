@@ -6,7 +6,7 @@
 
 可用于实时监听mysql数据变更、数据同步等场景
 
-# 版本兼容性
+# Runtime
 
 | PHP     | Laravel | Mysql | Swoole  |
 |:-------:|:-------:|:-----:|:-------:|
@@ -18,7 +18,7 @@
 composer require telanflow/laravel-binlog
 ```
 
-# Publish Config
+# Publish
 
 默认设置在 config/binlog.php 中。将此文件复制到您自己的配置目录以修改值。
 
