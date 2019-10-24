@@ -101,6 +101,7 @@ class Manager
                 $this->exit = true;
                 $this->client->close(true);
                 file_put_contents(Configure::getPosFile(), $pidFileContent);
+                exit(0);
         }
     }
 
