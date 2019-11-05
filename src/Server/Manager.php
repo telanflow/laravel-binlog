@@ -99,7 +99,9 @@ class Manager
             case SIGUSR2:
             case SIGTERM:
                 $this->exit = true;
-                $this->client->close(true);
+                if ($this->client->isConnected()) {
+                    $this->client->close(true);
+                }
                 file_put_contents(Configure::getPosFile(), $pidFileContent);
                 exit(0);
         }
