@@ -158,6 +158,11 @@ class ColumnDTO
         return $this->type;
     }
 
+    public function getTypeName(): string
+    {
+        return FieldTypeConst::getTypeName($this->type);
+    }
+
     public function getName(): string
     {
         return $this->fieldDTO->getColumnName();
