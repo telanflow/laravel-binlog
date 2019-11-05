@@ -9,6 +9,9 @@ use Telanflow\Binlog\Contracts\EventInterface;
 
 class Configure
 {
+    const COLUMN_MODE_EASY = 'easy';
+    const COLUMN_MODE_INFO = 'info';
+
     protected static $host = '';
     protected static $port = '';
     protected static $username = '';
@@ -23,6 +26,7 @@ class Configure
     protected static $logFile = '';
     protected static $binlogPosition = 0;
     protected static $binlogFileName = '';
+    protected static $columnMode = self::COLUMN_MODE_EASY;
     protected static $listen;
     protected static $listenEvent;
     protected static $dbConn;
@@ -50,6 +54,9 @@ class Configure
         self::$pidFile = trim($config['options']['pid_file']);
         self::$posFile = trim($config['options']['pos_file']);
         self::$logFile = trim($config['options']['log_file']);
+
+        // column mode
+        self::$columnMode = !empty($config['column_mode']) ? trim($config['column_mode']) : self::COLUMN_MODE_EASY;
 
         // resolve pos file
         if (self::$posFile && is_readable(self::$posFile))
@@ -284,6 +291,22 @@ class Configure
     public static function setLogFile(string $logFile): void
     {
         self::$logFile = $logFile;
+    }
+
+    /**
+     * @return string
+     */
+    public static function getColumnMode(): string
+    {
+        return self::$columnMode;
+    }
+
+    /**
+     * @param string $columnMode
+     */
+    public static function setColumnMode(string $columnMode): void
+    {
+        self::$columnMode = $columnMode;
     }
 
     public static function getDbConnection(): Connection

@@ -4,6 +4,7 @@ namespace Telanflow\Binlog\Event;
 
 use Exception;
 use Illuminate\Contracts\Cache\Repository;
+use Telanflow\Binlog\Configure\Configure;
 use Telanflow\Binlog\Constants\EventTypeConst;
 use Telanflow\Binlog\Contracts\EventInterface;
 use Telanflow\Binlog\DTO\ColumnDTOCollection;
@@ -341,90 +342,105 @@ class EventBuilder
 
         foreach ($this->currentTableMapDTO->getColumnDTOCollection() as $i => $columnDTO)
         {
-            $name = $columnDTO->getName();
             $type = $columnDTO->getType();
 
             if (0 === $this->bitGet($colsBitmap, $i)) {
-                $values[$name] = null;
+                $value = null;
                 continue;
             }
 
             if ($this->checkNull($nullBitmap, $nullBitmapIndex)) {
-                $values[$name] = null;
+                $value = null;
             } else if ($type === FieldTypeConst::IGNORE) {
                 $this->eventBinaryData->advance($columnDTO->getLengthSize());
-                $values[$name] = null;
+                $value = null;
             } else if ($type === FieldTypeConst::TINY) {
                 if ($columnDTO->isUnsigned()) {
-                    $values[$name] = $this->eventBinaryData->readUInt8();
+                    $value = $this->eventBinaryData->readUInt8();
                 } else {
-                    $values[$name] = $this->eventBinaryData->readInt8();
+                    $value = $this->eventBinaryData->readInt8();
                 }
             } else if ($type === FieldTypeConst::SHORT) {
                 if ($columnDTO->isUnsigned()) {
-                    $values[$name] = $this->eventBinaryData->readUInt16();
+                    $value = $this->eventBinaryData->readUInt16();
                 } else {
-                    $values[$name] = $this->eventBinaryData->readInt16();
+                    $value = $this->eventBinaryData->readInt16();
                 }
             } else if ($type === FieldTypeConst::LONG) {
                 if ($columnDTO->isUnsigned()) {
-                    $values[$name] = $this->eventBinaryData->readUInt32();
+                    $value = $this->eventBinaryData->readUInt32();
                 } else {
-                    $values[$name] = $this->eventBinaryData->readInt32();
+                    $value = $this->eventBinaryData->readInt32();
                 }
             } else if ($type === FieldTypeConst::LONGLONG) {
                 if ($columnDTO->isUnsigned()) {
-                    $values[$name] = $this->eventBinaryData->readUInt64();
+                    $value = $this->eventBinaryData->readUInt64();
                 } else {
-                    $values[$name] = $this->eventBinaryData->readInt64();
+                    $value = $this->eventBinaryData->readInt64();
                 }
             } else if ($type === FieldTypeConst::INT24) {
                 if ($columnDTO->isUnsigned()) {
-                    $values[$name] = $this->eventBinaryData->readUInt24();
+                    $value = $this->eventBinaryData->readUInt24();
                 } else {
-                    $values[$name] = $this->eventBinaryData->readInt24();
+                    $value = $this->eventBinaryData->readInt24();
                 }
             } else if ($type === FieldTypeConst::FLOAT) {
                 // http://dev.mysql.com/doc/refman/5.7/en/floating-point-types.html FLOAT(7,4)
-                $values[$name] = round($this->eventBinaryData->readFloat(), 4);
+                $value = round($this->eventBinaryData->readFloat(), 4);
             } else if ($type === FieldTypeConst::DOUBLE) {
-                $values[$name] = $this->eventBinaryData->readDouble();
+                $value = $this->eventBinaryData->readDouble();
             } else if ($type === FieldTypeConst::VARCHAR || $type === FieldTypeConst::STRING) {
-                $values[$name] = $columnDTO->getMaxLength() > 255 ? $this->getString(2) : $this->getString(1);
+                $value = $columnDTO->getMaxLength() > 255 ? $this->getString(2) : $this->getString(1);
             } else if ($type === FieldTypeConst::NEWDECIMAL) {
-                $values[$name] = $this->getDecimal($columnDTO);
+                $value = $this->getDecimal($columnDTO);
             } else if ($type === FieldTypeConst::BLOB) {
-                $values[$name] = $this->getString($columnDTO->getLengthSize());
+                $value = $this->getString($columnDTO->getLengthSize());
             } else if ($type === FieldTypeConst::DATETIME) {
-                $values[$name] = $this->getDatetime();
+                $value = $this->getDatetime();
             } else if ($type === FieldTypeConst::DATETIME2) {
-                $values[$name] = $this->getDatetime2($columnDTO);
+                $value = $this->getDatetime2($columnDTO);
             } else if ($type === FieldTypeConst::TIMESTAMP) {
-                $values[$name] = date('Y-m-d H:i:s', $this->eventBinaryData->readUInt32());
+                $value = date('Y-m-d H:i:s', $this->eventBinaryData->readUInt32());
             } else if ($type === FieldTypeConst::TIME) {
-                $values[$name] = $this->getTime();
+                $value = $this->getTime();
             } else if ($type === FieldTypeConst::TIME2) {
-                $values[$name] = $this->getTime2($columnDTO);
+                $value = $this->getTime2($columnDTO);
             } else if ($type === FieldTypeConst::TIMESTAMP2) {
-                $values[$name] = $this->getTimestamp2($columnDTO);
+                $value = $this->getTimestamp2($columnDTO);
             } else if ($type === FieldTypeConst::DATE) {
-                $values[$name] = $this->getDate();
+                $value = $this->getDate();
             } else if ($type === FieldTypeConst::YEAR) {
                 // https://dev.mysql.com/doc/refman/5.7/en/year.html
                 $year = $this->eventBinaryData->readUInt8();
-                $values[$name] = 0 === $year ? null : 1900 + $year;
+                $value = 0 === $year ? null : 1900 + $year;
             } else if ($type === FieldTypeConst::ENUM) {
-                $values[$name] = $this->getEnum($columnDTO);
+                $value = $this->getEnum($columnDTO);
             } else if ($type === FieldTypeConst::SET) {
-                $values[$name] = $this->getSet($columnDTO);
+                $value = $this->getSet($columnDTO);
             } else if ($type === FieldTypeConst::BIT) {
-                $values[$name] = $this->getBit($columnDTO);
+                $value = $this->getBit($columnDTO);
             } else if ($type === FieldTypeConst::GEOMETRY) {
-                $values[$name] = $this->getString($columnDTO->getLengthSize());
+                $value = $this->getString($columnDTO->getLengthSize());
             } else if ($type === FieldTypeConst::JSON) {
-                $values[$name] = JsonBinaryDecoderService::makeJsonBinaryDecoder($this->getString($columnDTO->getLengthSize()))->parseToString();
+                $value = JsonBinaryDecoderService::makeJsonBinaryDecoder($this->getString($columnDTO->getLengthSize()))->parseToString();
             } else {
                 throw new Exception('Unknown row type: ' . $type);
+            }
+
+            // Parse Column
+            if (Configure::getColumnMode() === Configure::COLUMN_MODE_EASY) {
+                $name = $columnDTO->getName();
+                $values[$name] = $value;
+            } else {
+                $values[] = [
+                    'name'          => $columnDTO->getName(),
+                    'value'         => $value,
+                    'length'        => strlen($value),
+                    'is_primary'    => $columnDTO->isPrimary(),
+                    'encoding'      => $columnDTO->getFieldDTO()->getCharacterSetName(),
+                    'type'          => $columnDTO->getTypeName(),
+                    'is_unsigned'   => $columnDTO->isUnsigned(),
+                ];
             }
 
             ++$nullBitmapIndex;

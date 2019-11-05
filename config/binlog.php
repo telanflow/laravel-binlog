@@ -10,7 +10,6 @@
  */
 
 use Telanflow\Binlog\Constants\RecordTypeConst;
-use Telanflow\Binlog\Constants\CharsetConst;
 
 return [
 
@@ -53,6 +52,16 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Column Mode (default: easy)
+    |
+    | easy:   ['id' => 12013]
+    | info:   ['name'=>'id', 'value'=>12013, 'type'=>'INT32', 'length'=>5, 'is_primary'=>true, 'encoding'=>'utf8mb4', 'is_unsigned'=>true]
+    |--------------------------------------------------------------------------
+    */
+    'column_mode' => \Telanflow\Binlog\Configure\Configure::COLUMN_MODE_EASY,
+
+    /*
+    |--------------------------------------------------------------------------
     | Specifies to listen to databases, tables
     |
     | （If not specified, listen to all databases, tables）
@@ -78,8 +87,8 @@ return [
         RecordTypeConst::INSERT,
         RecordTypeConst::UPDATE,
         RecordTypeConst::DELETE,
-        RecordTypeConst::BEGIN,
-        RecordTypeConst::ROLLBACK,
+        // RecordTypeConst::BEGIN,
+        // RecordTypeConst::ROLLBACK,
         // RecordTypeConst::FORMAT_DESCRIPTION,
         // RecordTypeConst::TABLE_MAP,
         // RecordTypeConst::HEARTBEAT,
