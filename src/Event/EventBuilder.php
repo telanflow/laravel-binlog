@@ -174,13 +174,14 @@ class EventBuilder
         $beforeBinaryData = $this->eventBinaryData->read($columnsBinarySize);
         $afterBinaryData = $this->eventBinaryData->read($columnsBinarySize);
 
-        $values = [];
+        $values = [
+            'before' => [],
+            'after' => [],
+        ];
         while (!$this->eventBinaryData->isComplete($this->eventInfo->getSizeNoHeader()))
         {
-            $values[] = [
-                'before' => $this->getColumnData($beforeBinaryData),
-                'after' => $this->getColumnData($afterBinaryData)
-            ];
+            $values['before'] = $this->getColumnData($beforeBinaryData);
+            $values['after'] = $this->getColumnData($afterBinaryData);
         }
 
         return new Update(
@@ -310,7 +311,7 @@ class EventBuilder
 
         $values = [];
         while (!$this->eventBinaryData->isComplete($this->eventInfo->getSizeNoHeader())) {
-            $values[] = $this->getColumnData($binaryData);
+            $values = $this->getColumnData($binaryData);
         }
 
         return $values;
