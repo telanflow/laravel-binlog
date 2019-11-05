@@ -11,9 +11,14 @@ class ColumnDTOCollection extends Collection
      */
     private $primaryKey = '';
 
-    public function __construct($items = [])
+    /**
+     * @return string
+     */
+    public function getPrimaryKey(): string
     {
-        parent::__construct($items);
+        if (!empty($this->primaryKey)) {
+            return $this->primaryKey;
+        }
 
         if(!empty($this->items) && is_array($this->items))
         {
@@ -26,13 +31,7 @@ class ColumnDTOCollection extends Collection
                 }
             }
         }
-    }
 
-    /**
-     * @return string
-     */
-    public function getPrimaryKey(): string
-    {
         return $this->primaryKey;
     }
 
