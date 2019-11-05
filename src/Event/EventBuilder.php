@@ -435,6 +435,7 @@ class EventBuilder
             } else {
                 $values[] = [
                     'name'          => $columnDTO->getName(),
+                    'field_name'    => $columnDTO->getName(),
                     'value'         => $value,
                     'length'        => strlen($value),
                     'is_primary'    => $columnDTO->isPrimary(),
