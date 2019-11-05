@@ -10,7 +10,7 @@ class FieldTypeConst
     const SHORT         = 2; // 2 bytes store_param_short
     const LONG          = 3; // 4 bytes store_param_int32
     const FLOAT         = 4; // 4 bytes store_param_float
-    const DOUBLE        = 5; //  8bytes store_param_double
+    const DOUBLE        = 5; // 8 bytes store_param_double
     const NULL          = 6; // int_is_null_true == 1
     const TIMESTAMP     = 7; // store_param_datetime
     const LONGLONG      = 8; // 8 bytes store_param_int64
@@ -38,4 +38,47 @@ class FieldTypeConst
     const STRING        = 254;
     const GEOMETRY      = 255;
     const IGNORE        = 666;
+
+    public static $map = [
+        self::DECIMAL       => 'DECIMAL',
+        self::TINY          => 'TINYINT',
+        self::SHORT         => 'SHORT',
+        self::LONG          => 'INT32',
+        self::FLOAT         => 'FLOAT',
+        self::DOUBLE        => 'DOUBLE',
+        self::NULL          => 'NULL',
+        self::TIMESTAMP     => 'TIMESTAMP',
+        self::LONGLONG      => 'LONGLONG',
+        self::BIGINT        => 'BIGINT',
+        self::INT24         => 'INT24',
+        self::DATE          => 'DATE',
+        self::TIME          => 'TIME',
+        self::DATETIME      => 'DATETIME',
+        self::YEAR          => 'YEAR',
+        self::NEWDATE       => 'DATE',
+        self::VARCHAR       => 'VARCHAR',
+        self::BIT           => 'BIT',
+        self::TIMESTAMP2    => 'TIMESTAMP',
+        self::DATETIME2     => 'DATETIME',
+        self::TIME2         => 'TIME',
+        self::JSON          => 'JSON',
+        self::NEWDECIMAL    => 'DECIMAL',
+        self::ENUM          => 'ENUM',
+        self::SET           => 'SET',
+        self::TINY_BLOB     => 'TINY_BLOB',
+        self::MEDIUM_BLOB   => 'MEDIUM_BLOB',
+        self::LONG_BLOB     => 'LONG_BLOB',
+        self::BLOB          => 'BLOB',
+        self::VAR_STRING    => 'VAR_STRING',
+        self::STRING        => 'STRING',
+        self::GEOMETRY      => 'GEOMETRY',
+        self::IGNORE        => 'IGNORE',
+    ];
+
+    public static function getTypeName($type)
+    {
+        $type = intval($type);
+        return isset(self::$map[$type]) ? self::$map[$type] : '';
+    }
+
 }
