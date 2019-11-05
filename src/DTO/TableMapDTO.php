@@ -20,11 +20,6 @@ class TableMapDTO
     public $tableName;
 
     /**
-     * @var string
-     */
-    public $primaryKey;
-
-    /**
      * @var int
      */
     private $columnsAmount;
@@ -60,7 +55,7 @@ class TableMapDTO
 
     public function getPrimaryKey(): string
     {
-        return $this->primaryKey;
+        return $this->columnDTOCollection->getPrimaryKey();
     }
 
     public function getColumnsAmount(): int
