@@ -5,6 +5,7 @@ namespace Telanflow\Binlog\Commands;
 use Swoole\Process;
 use Illuminate\Console\Command;
 use Telanflow\Binlog\Configure\Configure;
+use Telanflow\Binlog\Helpers\Helper;
 use Telanflow\Binlog\Server\Manager;
 use Telanflow\Binlog\Server\PidManager;
 use Illuminate\Support\Facades\Config;
@@ -16,7 +17,7 @@ class BinlogCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'mysql:binlog {action : start|stop|restart|infos}';
+    protected $signature = 'mysql:binlog {action : start|stop|restart|infos|clean}';
 
     /**
      * The console command description.
@@ -26,7 +27,7 @@ class BinlogCommand extends Command
     protected $description = 'Mysql binlog server.';
 
     /**
-     * The console command action. start|stop|restart|infos
+     * The console command action. start|stop|restart|infos|clean
      *
      * @var string
      */
@@ -66,9 +67,9 @@ class BinlogCommand extends Command
     protected function initAction()
     {
         $this->action = $this->argument('action');
-        if (! in_array($this->action, ['start', 'stop', 'restart', 'infos'], true)) {
+        if (! in_array($this->action, ['start', 'stop', 'restart', 'infos', 'clean'], true)) {
             $this->error(
-                "Invalid argument '{$this->action}'. Expected 'start', 'stop', 'restart' or 'infos'."
+                "Invalid argument '{$this->action}'. Expected 'start', 'stop', 'restart', 'infos' or 'clean'."
             );
             return;
         }
@@ -91,6 +92,9 @@ class BinlogCommand extends Command
             $this->error('Failed! mysql_binlog process is already running.');
             return;
         }
+
+        // Clear cache
+        $this->clearCache();
 
         $this->info('Starting mysql binlog server...');
         $this->info("Mysql binlog server started");
@@ -161,6 +165,29 @@ class BinlogCommand extends Command
         ];
 
         $this->table(['Name', 'Value'], $table);
+    }
+
+    /**
+     * Clear binlog cache pos_file
+     */
+    protected function clean()
+    {
+        if (! $this->clearCache()) {
+            $this->error('Failed! ');
+        }
+
+        $this->info('Cache clean success');
+    }
+
+    private function clearCache()
+    {
+        /** @var Config $config */
+        $config = $this->laravel->make('config');
+        $posFile = $config->get('binlog.options.pos_file');
+        $logFile = $config->get('binlog.options.log_file');
+        Helper::cleanFile($posFile);
+        Helper::cleanFile($logFile);
+        return true;
     }
 
     /**
