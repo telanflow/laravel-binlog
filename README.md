@@ -33,7 +33,7 @@ Please see [Wiki](https://github.com/telanflow/laravel-binlog/wiki)
 # Usage
 
 ```
-php artisan mysql:binlog [start|stop|restart|infos]
+php artisan mysql:binlog [start|stop|restart|infos|clean]
 ```
 
 # 鸣谢
