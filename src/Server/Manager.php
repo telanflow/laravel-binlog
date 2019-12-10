@@ -7,6 +7,7 @@ use Illuminate\Contracts\Container\Container;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Log;
 use Telanflow\Binlog\Configure\Configure;
 use Telanflow\Binlog\Constants\EventTypeConst;
 use Telanflow\Binlog\Event\EventBinaryData;
@@ -15,6 +16,7 @@ use Telanflow\Binlog\Event\EventInfo;
 use Telanflow\Binlog\Exceptions\ConnectionException;
 use Telanflow\Binlog\Exceptions\EventBinaryDataException;
 use Telanflow\Binlog\Helpers\OS;
+use Telanflow\Binlog\Exceptions\PacketCheckException;
 
 class Manager
 {
@@ -61,22 +63,29 @@ class Manager
         pcntl_signal(SIGTERM, [$this, 'signalHandler'], false);
         pcntl_signal(SIGPIPE, SIG_IGN, false);
 
-        // conn
-        if(!$this->client->connect(Configure::getHost(), Configure::getPort(), 10)) {
-            throw new ConnectionException($this->client->reuse, $this->client->errCode);
-        }
-        // auth
-        $this->client->authenticate();
-        // registerSlave
-        $this->client->getBinlogStream();
+        try {
 
-        while (!$this->exit)
-        {
-            pcntl_signal_dispatch();
+            // conn
+            if(!$this->client->connect(Configure::getHost(), Configure::getPort(), 10)) {
+                throw new ConnectionException($this->client->reuse, $this->client->errCode);
+            }
+            // auth
+            $this->client->authenticate();
+            // registerSlave
+            $this->client->getBinlogStream();
 
-            try {
-                $this->consume();
-            } catch (EventBinaryDataException $e) {}
+            while (!$this->exit)
+            {
+                pcntl_signal_dispatch();
+
+                try {
+                    $this->consume();
+                } catch (EventBinaryDataException $e) {}
+            }
+
+        } catch (\Exception $e) {
+            print_r("Connect error: " . $e->getMessage() . ' : ' . $e->getCode());
+            Log::error($e->getMessage());
         }
     }
 
@@ -107,6 +116,9 @@ class Manager
         }
     }
 
+    /**
+     * @throws PacketCheckException
+     */
     protected function consume(): void
     {
         $recvData = $this->client->read();
@@ -217,7 +229,10 @@ class Manager
     /**
      * Set process name.
      *
+     * @param string $subProcessName
+     *
      * @codeCoverageIgnore
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
     protected function setProcessName($subProcessName)
     {

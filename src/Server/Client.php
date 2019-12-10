@@ -9,6 +9,7 @@ use Telanflow\Binlog\Constants\CharsetConst;
 use Telanflow\Binlog\Constants\CommandTypeConst;
 use Telanflow\Binlog\Exceptions\PacketCheckException;
 use Telanflow\Binlog\Event\BinlogCurrent;
+use Exception;
 
 class Client extends BaseClient
 {
@@ -56,6 +57,7 @@ class Client extends BaseClient
      * @param bool $checkPacket
      * @return string
      * @throws PacketCheckException
+     * @throws Exception
      */
     public function read($checkPacket = true)
     {
