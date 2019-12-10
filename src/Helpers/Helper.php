@@ -14,6 +14,10 @@ class Helper
      */
     public static function cleanFile($filePath)
     {
+        if (! file_exists($filePath)) {
+            return false;
+        }
+        
         $fh = fopen($filePath, 'r+');
         if ($fh === false) {
             return false;
