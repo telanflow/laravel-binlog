@@ -16,7 +16,7 @@ class FieldDTOCollection extends Collection
             } else {
                 $v = FieldDTO::makeFromObject($field);
             }
-            $collection->add($v);
+            $collection->push($v);
         }
         return $collection;
     }
